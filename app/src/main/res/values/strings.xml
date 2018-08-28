@@ -1,3 +1,6 @@
 <resources>
     <string name="app_name">Weather App</string>
+    <string name="weather">Weather</string>
+    <string name="new_york_city">New York City</string>
+    <string name="get_forecast">Get Forecast</string>
 </resources>
