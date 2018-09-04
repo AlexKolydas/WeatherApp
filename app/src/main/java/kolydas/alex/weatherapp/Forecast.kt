@@ -3,6 +3,7 @@ package kolydas.alex.weatherapp
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.ArrayAdapter
+import android.widget.ListAdapter
 import android.widget.ListView
 import retrofit2.Call
 import retrofit2.Callback
@@ -14,37 +15,52 @@ class Forecast : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_forecast)
 
-        //access the list view
-        var listView= findViewById<ListView>(R.id.forecast_listView)
 
-        var randomThings= listOf("Hello","How are you","I like ice cream")
-
-        //take the randromThings and put them in the listView via "simple_list_item_1"
-        var adapter= ArrayAdapter(this,android.R.layout.simple_list_item_1,randomThings)
-
-        //connect the adapter with the listView we have created
-        listView.adapter= adapter
-
-
-        var retriever= WeatherRetriever()
+        var retriever = WeatherRetriever()
         //make a callback object
-        val callBack= object :Callback<List<ForecastActivity>>{
-            override fun onFailure(call: Call<List<ForecastActivity>>, t: Throwable) {
-                println("We got a failure")
+        val callBack = object : Callback<Weather> {
+
+            override fun onFailure(call: Call<Weather>, t: Throwable) {
+                println("it's not working")
+
             }
 
-            override fun onResponse(call: Call<List<ForecastActivity>>, response: Response<List<ForecastActivity>>) {
-                println("We got a response")
-                println(response?.body())
+            override fun onResponse(call: Call<Weather>, response: Response<Weather>) {
+                println("it's working")
+                title = response?.body()?.query?.results?.channel?.title
 
-                for(forecastDay in response!!.body()!!)
-                {
-                    println("High ${forecastDay.high} Low:${forecastDay.low}")
+                val forecasts = response?.body()?.query?.results?.channel?.item?.forecast
+                var forecastStrings = mutableListOf<String>()
+                if (forecasts != null) {
+                    for (forecast in forecasts) {
+                        val newString = "${forecast.date}- High:${forecast.high} Low:${forecast.low}- ${forecast.text}"
+                        forecastStrings.add(newString)
+                    }
                 }
-            }
+                //access the list view
+                var listView = findViewById<ListView>(R.id.forecast_listView)
 
+                //take the forecastStrings and put them in the listView via "simple_list_item_1"
+                var adapter = ArrayAdapter(this@Forecast, android.R.layout.simple_list_item_1, forecastStrings)
+
+                //connect the adapter with the listView we have created
+                listView.adapter = adapter
+            }
         }
 
-        retriever.getForecast(callBack)
+        //get from MainActivity what the user typed in search
+        val searchTerm = intent.extras.getString("searchTerm")
+
+        retriever.getForecast(callBack, searchTerm)
     }
 }
+// GIA TA EROTIMATIKA **?**
+/*
+To xrisimopoioume gia na deiiksoume oti mia metavliti mporei na einai kai null(na min petaei error)
+var age : Int? =28
+
+age = 4
+age = 88
+age = null
+
+*/
